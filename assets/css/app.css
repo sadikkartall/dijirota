@@ -179,6 +179,20 @@ h3 { margin-bottom: 10px; line-height: 1.2; letter-spacing: -.03em; }
 .step h3 { position: relative; z-index: 1; margin-top: 28px; }
 .step p { position: relative; z-index: 1; max-width: 270px; line-height: 1.75; }
 .section-dark .section-heading h2 { max-width: 650px; }
+.section-dark .section-heading { align-items: end; }
+.section-intro { max-width: 330px; margin: 0 0 4px; color: #94a3b8; font-size: .9rem; line-height: 1.7; }
+.steps { position: relative; }
+.steps:before { content: ""; position: absolute; top: 51px; right: 15%; left: 15%; height: 1px; background: linear-gradient(90deg, transparent, rgba(249,115,22,.5), transparent); }
+.step { z-index: 1; display: flex; flex-direction: column; min-height: 315px; padding: 28px; border: 1px solid rgba(148,163,184,.2); background: linear-gradient(145deg, #1b293e 0%, #101827 100%); }
+.step-header { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; }
+.step-header > span { width: auto; height: auto; padding: 0; color: #fb923c; background: transparent; font-size: .78rem; font-weight: 900; letter-spacing: .12em; }
+.step-icon { display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid rgba(249,115,22,.35); border-radius: 15px; color: #fed7aa; background: rgba(249,115,22,.12); font-size: 1.5rem; font-weight: 800; }
+.step h3 { margin-top: 34px; font-size: 1.45rem; }
+.step p { max-width: 280px; margin-bottom: 22px; }
+.step-link { display: inline-flex; align-items: center; gap: 8px; margin-top: auto; color: #fdba74; font-size: .78rem; font-weight: 800; }
+.step-link span { transition: transform .2s; }
+.step-link:hover { color: white; }
+.step-link:hover span { transform: translate(3px, -2px); }
 @media (max-width: 640px) {
   .hero-grid { min-height: 620px; padding: 78px 0 90px; }
   .hero-section h1 { font-size: clamp(2.75rem, 13vw, 4.3rem); }
@@ -190,6 +204,10 @@ h3 { margin-bottom: 10px; line-height: 1.2; letter-spacing: -.03em; }
   .featured-grid .product-card:first-child .product-visual { height: 228px; }
   .catalog-toolbar { display: block; }
   .catalog-count { display: block; margin-top: 16px; }
+  .section-dark .section-heading { display: block; }
+  .section-intro { margin-top: 18px; }
+  .steps:before { display: none; }
+  .step { min-height: 285px; }
   .product-footer { align-items: end; }
   .preview-caption .preview-title { font-size: 1.9rem; }
   .detail-preview .preview-caption .preview-title { font-size: 2.55rem; }

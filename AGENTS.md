@@ -50,6 +50,7 @@ Her ürünün tanıtım görseli `assets/images/demos` klasöründedir. Görsel 
 - `robots.txt`, `sitemap.php`, `llms.txt`
 - Responsive tasarım
 - Premium dijital showroom görsel dili: kart grid’i, öne çıkan bento kartı, ürün rozetleri ve mikro animasyonlar
+- “Nasıl çalışır?” bölümü: katalog, sepet ve kurulum aksiyonlarına bağlı üç responsive süreç kartı
 - WhatsApp sabit butonu ve footer bağlantısı: `+90 544 620 16 21`
 
 ## Önemli mevcut sınırlamalar
