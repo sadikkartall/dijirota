@@ -41,14 +41,14 @@ function product_card(array $product): void
         <div class="product-visual">
             <img class="preview-image" src="<?= e(preview_image($product['slug'])) ?>" alt="<?= e($product['name']) ?> tanıtım görseli" loading="lazy">
             <div class="preview-shade"></div>
-            <div class="preview-caption"><span class="preview-title"><?= e(preview_title($product['name'])) ?></span><small><?= e($product['theme'] ?? 'Dijirota teması') ?></small></div>
+            <div class="preview-caption"><div class="preview-badge">DİJİROTA / HAZIR PAKET</div><span class="preview-title"><?= e(preview_title($product['name'])) ?></span><small><?= e($product['theme'] ?? 'Dijirota teması') ?></small></div>
         </div>
         <div class="product-body">
             <div class="eyebrow"><?= e($product['category']) ?></div>
             <h3><?= e($product['name']) ?></h3>
             <p><?= e($product['description']) ?></p>
             <div class="feature-row"><?php foreach (array_slice($features, 0, 3) as $feature): ?><span><?= e($feature) ?></span><?php endforeach; ?></div>
-            <div class="product-footer"><strong><?= money((int) $product['price_kurus']) ?></strong><a class="text-link" href="<?= e(APP_URL) ?>/kurumsal-sayfa/<?= e($product['slug']) ?>">Detayları gör →</a></div>
+            <div class="product-footer"><div><small class="price-label">Tek paket fiyatı</small><strong><?= money((int) $product['price_kurus']) ?></strong></div><a class="card-detail-link" href="<?= e(APP_URL) ?>/kurumsal-sayfa/<?= e($product['slug']) ?>">İncele <span>↗</span></a></div>
         </div>
     </article>
     <?php
@@ -219,7 +219,7 @@ try {
         begin_page('Dijirota | Profesyonel Kurumsal Sayfalar', 'İşletmenizi dijitalde profesyonel gösteren, yönetim panelli kurumsal sayfalar. 15.000 TL KDV dahil; domain ve hosting dahil.', false, ['@context' => 'https://schema.org', '@type' => 'Organization', 'name' => 'Dijirota', 'url' => APP_URL]);
         ?>
         <section class="hero-section"><div class="container hero-grid"><div><div class="eyebrow light">DİJİROTA KURUMSAL SAYFALAR</div><h1>İşletmeniz için profesyonel bir dijital başlangıç.</h1><p class="hero-copy">Sektörünüze özel tasarlanmış, yönetim panelli kurumsal sayfanızı seçin. Domain, hosting ve kurulum dahil; tek pakette hazır.</p><div class="hero-actions"><a class="button button-primary" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Kurumsal sayfaları keşfet <span>↗</span></a><a class="button button-ghost" href="#nasil-calisir">Nasıl çalışır?</a></div><div class="hero-proof"><span>15 sektör</span><span>Yönetim paneli</span><span>15.000 TL KDV dahil</span></div></div><div class="hero-showcase"><div class="floating-label">Dijital görünümünüzü güçlendirin</div><div class="showcase-window"><div class="window-bar"><i></i><i></i><i></i></div><div class="showcase-content"><span>DİJİROTA</span><strong>Markanız için<br>güçlü bir vitrin.</strong><div class="showcase-lines"><b></b><b></b><b></b></div></div></div><div class="showcase-orbit"></div></div></div></section>
-        <section class="section section-white"><div class="container"><div class="section-heading"><div><div class="eyebrow">ÖNE ÇIKANLAR</div><h2>İşletmenize uygun kurumsal sayfayı bulun.</h2></div><a class="text-link" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Tümünü gör →</a></div><div class="product-grid"><?php foreach (array_slice($products, 0, 6) as $product) { product_card($product); } ?></div></div></section>
+        <section class="section section-white"><div class="container"><div class="section-heading"><div><div class="eyebrow">ÖNE ÇIKANLAR</div><h2>İşletmenize uygun kurumsal sayfayı bulun.</h2></div><a class="text-link" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Tümünü gör →</a></div><div class="product-grid featured-grid"><?php foreach (array_slice($products, 0, 6) as $product) { product_card($product); } ?></div></div></section>
         <section class="section section-dark" id="nasil-calisir"><div class="container"><div class="section-heading"><div><div class="eyebrow light">SÜREÇ</div><h2>Fikrinizi yayına almanın kolay yolu.</h2></div></div><div class="steps"><div class="step"><span>01</span><h3>Sayfanızı seçin</h3><p>15 farklı sektörel kurumsal sayfa arasından işletmenize en uygun tasarımı inceleyin.</p></div><div class="step"><span>02</span><h3>Sipariş verin</h3><p>Sepetinizi oluşturun, hesabınızı açın ve güvenli ödeme adımını tamamlayın.</p></div><div class="step"><span>03</span><h3>Biz kuralım</h3><p>Domain, hosting ve kurulum süreçlerini DİJİROTA yöneticisi sizin için tamamlasın.</p></div></div></div></section>
         <section class="section section-accent"><div class="container cta-box"><div><div class="eyebrow">HAZIR MISINIZ?</div><h2>Markanız için doğru kurumsal sayfayı bugün seçin.</h2></div><a class="button button-dark" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Sayfaları incele ↗</a></div></section>
         <?php end_page();
@@ -239,7 +239,7 @@ try {
         begin_page('Kurumsal Sayfalar | Dijirota', 'Dijirota’nın 15 sektöre özel, yönetim panelli kurumsal sayfa paketlerini inceleyin.');
         ?>
         <section class="page-hero"><div class="container"><div class="eyebrow light">DİJİROTA KATALOĞU</div><h1>İşletmenize uygun kurumsal sayfayı keşfedin.</h1><p>Her paket 15.000 TL KDV dahil fiyatla domain, hosting, kurulum ve yönetim paneli içerir.</p></div></section>
-        <section class="section section-white"><div class="container"><div class="filters"><a class="filter <?= $category === '' ? 'active' : '' ?>" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Tümü</a><?php foreach ($categories as $item): ?><a class="filter <?= $category === $item ? 'active' : '' ?>" href="<?= e(APP_URL) ?>/kurumsal-sayfalar?kategori=<?= urlencode($item) ?>"><?= e($item) ?></a><?php endforeach; ?></div><div class="product-grid"><?php foreach ($products as $product) { product_card($product); } ?></div></div></section>
+        <section class="section section-white"><div class="container"><div class="catalog-toolbar"><div class="filters"><a class="filter <?= $category === '' ? 'active' : '' ?>" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Tümü</a><?php foreach ($categories as $item): ?><a class="filter <?= $category === $item ? 'active' : '' ?>" href="<?= e(APP_URL) ?>/kurumsal-sayfalar?kategori=<?= urlencode($item) ?>"><?= e($item) ?></a><?php endforeach; ?></div><span class="catalog-count"><?= count($products) ?> hazır kurumsal sayfa</span></div><div class="product-grid catalog-grid"><?php foreach ($products as $product) { product_card($product); } ?></div></div></section>
         <?php end_page();
         exit;
     }
