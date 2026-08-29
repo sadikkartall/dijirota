@@ -21,7 +21,7 @@ $flash_items = flashes();
     <meta property="og:description" content="<?= e($meta_description) ?>">
     <meta property="og:url" content="<?= e(APP_URL . ($_SERVER['REQUEST_URI'] ?? '/')) ?>">
     <link rel="icon" href="<?= e(APP_URL) ?>/assets/images/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="<?= e(APP_URL) ?>/assets/css/app.css?v=20260829-3">
+    <link rel="stylesheet" href="<?= e(APP_URL) ?>/assets/css/app.css?v=20260829-5">
     <?php if (!empty($structured_data)) { render_json_ld($structured_data); } ?>
 </head>
 <body>
