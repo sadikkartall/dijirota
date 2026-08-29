@@ -1,0 +1,11 @@
+RewriteEngine On
+
+Options -Indexes
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+RewriteRule ^robots\.txt$ robots.txt [L]
+RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
+RewriteRule ^(.*)$ index.php?path=$1 [L,QSA]

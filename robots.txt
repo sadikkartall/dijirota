@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /panel
+Disallow: /sepet
+Disallow: /odeme
+Disallow: /giris
+Disallow: /kayit
+Disallow: /cikis
+
+Sitemap: https://dijirota.com/sitemap.xml

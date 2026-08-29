@@ -1,0 +1,16 @@
+# Dijirota
+
+> Dijirota, işletmelere yönetim panelli profesyonel kurumsal sayfalar sunar.
+
+## Ürünler
+
+- 15 farklı sektör için kurumsal sayfa paketi
+- Paket fiyatı: 15.000 TL KDV dahil
+- Domain ve hosting dahildir
+- Kurulum DİJİROTA yöneticisi tarafından yapılır
+- Her paket müşteriye özel yönetim paneli içerir
+
+## Önemli sayfalar
+
+- Kurumsal sayfalar: https://dijirota.com/kurumsal-sayfalar
+- İletişim: https://dijirota.com/#iletisim

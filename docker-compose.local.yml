@@ -1,0 +1,51 @@
+name: dijirota-local
+
+services:
+  db:
+    image: mariadb:10.5
+    container_name: kurumsalweb-dijirota-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: local_root_password
+      MARIADB_DATABASE: dijirota
+      MARIADB_USER: dijirota_user
+      MARIADB_PASSWORD: local_password
+    volumes:
+      - dijirota_db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-plocal_root_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    container_name: kurumsalweb-dijirota-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8100:80"
+    environment:
+      APP_ENV: local
+      APP_URL: ${APP_URL:-http://localhost:8100}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: dijirota
+      DB_USER: dijirota_user
+      DB_PASSWORD: local_password
+      ADMIN_SEED_EMAIL: admin@dijirota.com
+      ADMIN_SEED_PASSWORD: DijirotaAdmin!2026
+      PAYTR_MERCHANT_ID: ${PAYTR_MERCHANT_ID:-}
+      PAYTR_MERCHANT_KEY: ${PAYTR_MERCHANT_KEY:-}
+      PAYTR_MERCHANT_SALT: ${PAYTR_MERCHANT_SALT:-}
+      PAYTR_TEST_MODE: ${PAYTR_TEST_MODE:-1}
+    volumes:
+      - ./:/var/www/html
+
+volumes:
+  dijirota_db_data:
