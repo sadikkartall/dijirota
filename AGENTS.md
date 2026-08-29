@@ -51,6 +51,7 @@ Her ürünün tanıtım görseli `assets/images/demos` klasöründedir. Görsel 
 - Responsive tasarım
 - Premium dijital showroom görsel dili: kart grid’i, öne çıkan bento kartı, ürün rozetleri ve mikro animasyonlar
 - “Nasıl çalışır?” bölümü: katalog, sepet ve kurulum aksiyonlarına bağlı üç responsive süreç kartı
+- Hero alanında hover ile açılan iki katmanlı tanıtım kartı bulunur; ana kart ve `showcase-back-card` birlikte çalışır.
 - WhatsApp sabit butonu ve footer bağlantısı: `+90 544 620 16 21`
 
 ## Önemli mevcut sınırlamalar
