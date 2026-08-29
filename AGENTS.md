@@ -49,7 +49,7 @@ Her ürünün tanıtım görseli `assets/images/demos` klasöründedir. Görsel 
 - SEO title/description, canonical, Open Graph, JSON-LD
 - `robots.txt`, `sitemap.php`, `llms.txt`
 - Responsive tasarım
-- Premium dijital showroom görsel dili: kart grid’i, öne çıkan bento kartı, ürün rozetleri ve mikro animasyonlar
+- Premium dijital showroom görsel dili: eşit ölçülü kart grid’i, ürün rozetleri ve mikro animasyonlar
 - “Nasıl çalışır?” bölümü: katalog, sepet ve kurulum aksiyonlarına bağlı üç responsive süreç kartı
 - Hero alanında hover ile açılan iki katmanlı tanıtım kartı bulunur; ana kart ve `showcase-back-card` birlikte çalışır.
 - WhatsApp sabit butonu ve footer bağlantısı: `+90 544 620 16 21`
@@ -85,8 +85,16 @@ start http://localhost:8100
 
 - Repo: `https://github.com/sadikkartall/dijirota`
 - Branch: `main`
-- Son bilinen başlangıç commit’i: `6aa382f`
+- Son bilinen commit: `2ec4def` (`Fix equal catalog card layout`)
 - Yerel `.env` dosyası commit edilmemelidir.
+
+## Son oturum notları — 2026-08-29
+
+- Ana sayfadaki öne çıkan 6 kurumsal sayfa kartı eşit ölçüde tutulmalıdır. İlk kart için iki kolon kaplayan özel bento düzeni kaldırıldı; tekrar eklenmemelidir.
+- Hero alanındaki arka tanıtım kartı (`showcase-back-card`) kısa ve okunabilir metin kullanır: “15 sektöre hazır çözüm.” Kart hover ile sağ tarafa açılır, ana kart sola kayar.
+- CSS önbellek sürümü `20260829-5` olarak güncellendi. Tasarım değişikliklerinden sonra kullanıcı tarayıcıda `Ctrl + F5` yapabilir.
+- Son değişiklikler GitHub `main` dalına push edildi. Yerel çalışma klasörü son kontrolde temizdi.
+- Kullanıcı çalıştırma işlemlerini kendisi yapıyor; çalışma sırasında Docker servislerini başlatma, yalnızca gerekli komutları paylaş.
 
 ## Sonraki öncelikler
 
