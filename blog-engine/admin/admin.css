@@ -1,0 +1,40 @@
+/* Dijirota's shared header, footer, hero and base tokens come from assets/css/app.css. */
+.blog-studio{padding-top:46px;padding-bottom:90px;--accent:var(--orange-dark);color:var(--ink);color-scheme:light}
+.blog-studio .studio-nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#f8f9fb;border:1px solid var(--line);padding:10px;border-radius:16px;margin-bottom:30px}
+.blog-studio .studio-nav a{padding:10px 14px;font-size:13px;font-weight:650;color:#6b7280;border-radius:10px}
+.blog-studio .studio-nav a[aria-current]{background:white;color:var(--ink);box-shadow:0 5px 18px #11182708}
+.blog-studio .studio-nav button{margin-left:auto}
+.blog-studio button{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:11px;padding:11px 16px;font-weight:650;font-size:14px;transition:background .15s}
+.blog-studio button:disabled{opacity:.45;cursor:not-allowed}.blog-studio :is(button,a,input,textarea,summary):focus-visible{outline:3px solid #f28c2870;outline-offset:3px}
+.blog-studio .primary{background:var(--orange);color:#111827;border-color:var(--orange)}.blog-studio .primary:not(:disabled):hover{background:#ff9c3c}
+.blog-studio .secondary{background:#fff;color:var(--ink)}.blog-studio .secondary:not(:disabled):hover{background:#f5f7fb}
+.blog-studio .danger{background:#fff1f2;color:#9f1239;border-color:#fecdd3}
+.blog-studio .studio-grid{display:grid;grid-template-columns:310px minmax(0,1fr);gap:24px;align-items:start}
+.blog-studio .sidebar{display:grid;gap:22px}.blog-studio .panel{padding:25px;background:white;border:1px solid var(--line);border-radius:18px;min-width:0;box-shadow:0 6px 24px #11182703}
+.blog-studio h2{font-size:20px;margin:0 0 18px;font-weight:750;letter-spacing:-.025em}.blog-studio h3{font-size:17px;color:var(--ink)}
+.blog-studio label{display:block;font-size:13px;font-weight:600;margin:16px 0 7px;color:var(--ink)}.blog-studio :is(label span,small,.hint){color:var(--muted);font-size:12px;font-weight:400}
+.blog-studio input:not([type=checkbox]),.blog-studio textarea{display:block;width:100%;min-width:0;background:#f9fafb;border:1px solid #dce1e8;border-radius:10px;color:var(--ink);padding:12px 14px;resize:vertical;font:16px/1.6 inherit;font-family:inherit;font-size:16px;line-height:1.6}
+.blog-studio :is(input,textarea)::placeholder{color:#7a8391}.blog-studio fieldset{margin:0;padding:0;border:0;min-width:0}
+.blog-studio .field-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}.blog-studio .field-row>div{min-width:0}
+.blog-studio #create-form button{width:100%;margin-top:12px}.blog-studio .hint{line-height:1.7}
+.blog-studio .notice{padding:14px 18px;background:#fff8f0;border:1px solid #f6dec2;border-radius:12px;color:#774817;font-size:13px;overflow-wrap:anywhere}
+.blog-studio .error{padding:14px;border:1px solid #fecdd3;background:#fff1f2;color:#9f1239;border-radius:12px;overflow-wrap:anywhere}
+.blog-studio #feedback{min-height:24px;color:#9a4a06;overflow-wrap:anywhere;font-size:14px}
+.blog-studio .section-row{display:flex;align-items:center;justify-content:space-between;gap:15px}.blog-studio .section-row h2{margin:0;overflow-wrap:anywhere}.blog-studio .section-row .eyebrow{display:block;margin-bottom:8px}
+.blog-studio .small{font-size:12px;padding:6px 10px}.blog-studio .draft-list{margin-top:18px;display:grid;gap:9px}
+.blog-studio .draft-item{display:block;width:100%;text-align:left;background:#f9fafb;color:var(--ink);font-weight:400;overflow-wrap:anywhere}
+.blog-studio .draft-item.selected{background:#fff8ef;border-color:var(--orange)}.blog-studio .draft-item strong{display:block;font-size:14px}.blog-studio .draft-item small{display:block;margin-top:6px}
+.blog-studio .badge{font-size:11px;padding:5px 11px;background:#fff0df;color:#9a4a06;border-radius:20px;white-space:nowrap}
+.blog-studio .empty{min-height:510px;display:flex;align-items:center;justify-content:center;text-align:center;flex-direction:column;color:var(--muted)}.blog-studio .empty>span{font-size:65px;color:var(--orange)}.blog-studio .empty h2{color:var(--ink);margin:18px 0 0}.blog-studio .empty p{font-size:14px;max-width:380px}
+.blog-studio .markdown-editor{font-family:Consolas,monospace!important;font-size:14px!important;line-height:1.75!important}
+.blog-studio details{border:1px solid var(--line);padding:15px;border-radius:12px;margin-top:20px}.blog-studio summary{cursor:pointer;color:#a04c07;font-size:14px}.blog-studio .review-notes{padding-left:20px;font-size:13px;overflow-wrap:anywhere}
+.blog-studio .cover-section{margin:24px 0}.blog-studio .cover-section img{width:100%;max-height:360px;object-fit:contain;background:#f5f7fb;border-radius:12px}
+.blog-studio .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}.blog-studio .approval{margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}.blog-studio .approval p{font-size:13px;color:var(--muted)}
+.blog-studio .check-label{display:flex;gap:10px;align-items:flex-start;font-weight:400}.blog-studio .check-label input{width:18px;height:18px;flex-shrink:0;accent-color:var(--orange)}.blog-studio #publication-errors{color:#9a4a06;font-size:13px;padding-left:20px}
+.blog-studio dialog{color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:18px;width:min(1160px,95vw);height:92vh;padding:24px}.blog-studio dialog::backdrop{background:#11182799}.blog-studio dialog iframe{background:#fff;width:100%;height:calc(100% - 100px);border:0;margin-top:15px}.blog-studio [hidden]{display:none!important}
+@media(max-width:1000px){.blog-studio .studio-grid{grid-template-columns:270px minmax(0,1fr)}.blog-studio .panel{padding:18px}}
+@media(max-width:760px){.blog-studio{padding-top:24px;padding-bottom:50px}.blog-studio .studio-grid{grid-template-columns:1fr}.blog-studio .field-row{grid-template-columns:1fr;gap:0}.blog-studio .empty{min-height:260px}.blog-studio .actions button{flex:1}.blog-studio .section-row{flex-wrap:wrap}.blog-studio .studio-nav{gap:2px}.blog-studio .studio-nav a{padding:8px 10px}.blog-studio .studio-nav button{margin-left:0}}
+
+/* Keep the studio typography aligned with the storefront. */
+.blog-studio{font-family:"Manrope","Avenir Next","Segoe UI",sans-serif;font-weight:500;-webkit-font-smoothing:antialiased}
+.blog-studio button{font-weight:800;letter-spacing:-.02em}

@@ -26,11 +26,14 @@ services:
     container_name: kurumsalweb-dijirota-web
     restart: unless-stopped
     depends_on:
+      blog:
+        condition: service_healthy
       db:
         condition: service_healthy
     ports:
       - "8100:80"
     environment:
+      BLOG_BRIDGE_SECRET: ${BLOG_BRIDGE_SECRET:?Blog kurulumu eksik}
       APP_ENV: local
       APP_URL: ${APP_URL:-http://localhost:8100}
       DB_HOST: db
@@ -44,8 +47,44 @@ services:
       PAYTR_MERCHANT_KEY: ${PAYTR_MERCHANT_KEY:-}
       PAYTR_MERCHANT_SALT: ${PAYTR_MERCHANT_SALT:-}
       PAYTR_TEST_MODE: ${PAYTR_TEST_MODE:-1}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BLOG_MODEL: ${OPENAI_BLOG_MODEL:-gpt-5.6-terra}
+      OPENAI_BLOG_WEB_SEARCH: ${OPENAI_BLOG_WEB_SEARCH:-1}
+      OPENAI_BLOG_VECTOR_STORE_ID: ${OPENAI_BLOG_VECTOR_STORE_ID:-}
+      OPENAI_BLOG_MAX_OUTPUT_TOKENS: ${OPENAI_BLOG_MAX_OUTPUT_TOKENS:-12000}
+      BLOG_AI_PROVIDER: ${BLOG_AI_PROVIDER:-nvidia}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+      NVIDIA_API_BASE_URL: ${NVIDIA_API_BASE_URL:-https://integrate.api.nvidia.com/v1}
+      NVIDIA_BLOG_MODEL: ${NVIDIA_BLOG_MODEL:-nvidia/nemotron-3.5-lightning-30b-a3b}
+      NVIDIA_BLOG_MAX_OUTPUT_TOKENS: ${NVIDIA_BLOG_MAX_OUTPUT_TOKENS:-5000}
+      NVIDIA_IMAGE_API_URL: ${NVIDIA_IMAGE_API_URL:-https://ai.api.nvidia.com/v1/genai/stabilityai/stable-diffusion-3-medium}
+      NVIDIA_IMAGE_MODEL: ${NVIDIA_IMAGE_MODEL:-sd3}
     volumes:
       - ./:/var/www/html
+
+  blog:
+    build:
+      context: ./blog-engine
+    container_name: kurumsalweb-dijirota-blog
+    restart: unless-stopped
+    init: true
+    environment:
+      BLOG_BRIDGE_SECRET: ${BLOG_BRIDGE_SECRET:?Blog kurulumu eksik}
+      BLOG_AI_PROVIDER: ${BLOG_AI_PROVIDER:-nvidia}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+      NVIDIA_TEXT_MODEL: ${NVIDIA_TEXT_MODEL:-nvidia/nemotron-3-super-120b-a12b}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      BLOG_TEXT_MODEL: ${BLOG_TEXT_MODEL:-gpt-5-mini}
+      BLOG_IMAGE_MODEL: ${BLOG_IMAGE_MODEL:-gpt-image-1.5}
+    volumes:
+      - ./blog-engine/.blog-data:/app/.blog-data
+      - ./blog-engine/content:/app/content
+      - ./blog-engine/dist:/app/dist
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck.mjs"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
 
 volumes:
   dijirota_db_data:

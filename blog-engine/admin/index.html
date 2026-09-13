@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Blog Atölyesi — DİJİROTA</title><link rel="stylesheet" href="/admin/blog/admin.css"><script src="/admin/blog/admin.js" defer></script></head>
+<body>
+<header class="topbar"><a href="/admin" class="brand">✳ dijirota<span>.</span></a><div class="actions"><a href="/blog/">Blogu görüntüle ↗</a><button id="logout" class="secondary" type="button">Çıkış yap</button></div></header>
+<main class="workspace">
+  <section class="intro"><span class="eyebrow">FİKİRDEN YAZIYA</span><h1>Senin konun.<br><em>Senin son sözün.</em></h1><p>Yapay zekâ yazsın ve görselleştirsin.<br>Yayınlanacak sürümü sen seç.</p></section>
+  <p id="connection" class="notice" role="status">Panel bağlantısı kuruluyor…</p>
+  <p id="research-info" class="hint"></p>
+  <p id="feedback" role="status" aria-live="polite"></p>
+  <div class="studio-grid">
+    <aside class="sidebar">
+      <section class="panel"><h2>Yeni bir fikir</h2><form id="create-form"><label for="topic">Ne hakkında yazalım?</label><input id="topic" name="topic" placeholder="Örn. Flutter'da durum yönetimi" minlength="3" maxlength="300" required><label for="brief">Yazı için notların <span>(isteğe bağlı)</span></label><textarea id="brief" name="brief" rows="4" maxlength="3000" placeholder="Hedef okuyucu, ele alınacak noktalar, tercih ettiğin kaynaklar…"></textarea><button id="create-generate" type="submit" class="primary">Yazı ve kapak üret ↗</button><button id="create-manual" type="button" class="secondary">Boş taslak oluştur</button><p class="hint">Üretim seçilen sağlayıcının API kullanımına tabidir. Her yeniden üretim yeni bir API isteği yapar.</p></form></section>
+      <section class="panel"><div class="section-row"><h2>Yazıların</h2><button id="refresh" class="small secondary">Yenile</button></div><div id="draft-list" class="draft-list"><p class="hint">Henüz taslak yok. İlk konunu girerek başla.</p></div></section>
+    </aside>
+    <section class="panel editor-panel">
+      <div id="empty-editor" class="empty"><span>✳</span><h2>Yeni bir yazıya yer aç.</h2><p>Bir konu gir veya düzenlemek için bir taslak seç.<br>Sen onaylamadan hiçbir taslak bloga eklenmez.</p></div>
+      <div id="editor" hidden>
+        <div class="section-row"><div><span class="eyebrow">YAZI MASASI</span><h2 id="editor-title">Taslak</h2></div><span id="draft-status" class="badge"></span></div>
+        <p id="job-progress" class="notice" role="status" hidden></p>
+        <p id="draft-error" class="error" role="alert" hidden></p>
+        <form id="edit-form"><fieldset id="edit-fields">
+          <label for="title">Başlık</label><input id="title" maxlength="160" required>
+          <div class="field-row"><div><label for="slug">Blog adresi</label><input id="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="80" required><small>/blog/<span id="slug-hint"></span>/</small></div><div><label for="tags">Etiketler</label><input id="tags" placeholder="Flutter, Dart, Mobil"><small>Virgülle ayır, en fazla 8 etiket.</small></div></div>
+          <label for="description">Kısa özet</label><textarea id="description" maxlength="320" rows="2"></textarea>
+          <label for="body">Yazı <span>Markdown</span></label><textarea id="body" class="markdown-editor" rows="19" maxlength="80000" spellcheck="false"></textarea>
+          <details><summary>Kaynaklar ve kontrol notları</summary><label for="sources">Kaynaklar (öneri)</label><textarea id="sources" rows="5" placeholder="Yapay zekâ konuya uygun önerileri buraya doldurur."></textarea><ul id="review-notes" class="review-notes"></ul><p class="hint">Kaynaklar üretim sırasında önerilir; bağlantıları sen kontrol et. İstersen kaynak eklemeden de yayımlayabilirsin.</p></details>
+          <section class="cover-section"><h3>Kapak görseli</h3><img id="cover" alt="" hidden><p id="no-cover" class="hint">Henüz kapak üretilmedi.</p><label for="coverAlt">Görselin açıklaması</label><input id="coverAlt" maxlength="300"><label for="coverPrompt">Görsel üretim tarifi</label><textarea id="coverPrompt" rows="3" maxlength="2500"></textarea></section>
+          <div class="actions"><button class="primary" type="submit">Taslağı kaydet</button><button id="preview-button" type="button" class="secondary">Kaydet ve önizle</button></div>
+          <div class="actions"><button id="regenerate-text" type="button" class="secondary">Yazıyı yeniden üret</button><button id="regenerate-cover" type="button" class="secondary">Kapağı yeniden üret</button></div>
+        </fieldset></form>
+          <section class="approval"><h3>Son söz sende.</h3><p id="publication-info">Onaylanan yazı blogun yayın dosyalarına eklenir. Kapak ve kaynaklar isteğe bağlıdır.</p><ul id="publication-errors"></ul><p id="approval-help" class="hint">Önizlemeyi açıp yazıyı kontrol ettikten sonra onay kutusunu işaretleyebilirsin. Kapak eklenmemişse yazı kapaksız yayımlanır.</p><label class="check-label"><input id="reviewed" type="checkbox" disabled>Önizlemedeki yazıyı, kaynakları, kod örneklerini ve kapağı kontrol ettim.</label><div class="actions"><button id="approve" class="primary" disabled>Bu sürümü onayla ve bloga ekle</button><button id="unpublish" class="danger" hidden>Blogdan kaldır</button></div></section>
+      </div>
+    </section>
+  </div>
+</main>
+<dialog id="preview-dialog"><div class="section-row"><h2>Yayın önizlemesi</h2><button id="close-preview" class="secondary">Kapat</button></div><iframe id="preview-frame" title="Blog yazısının önizlemesi" sandbox="allow-same-origin"></iframe><p class="hint">Bu bir taslak önizlemesidir. Yayın için paneldeki onay kutusunu işaretle.</p></dialog>
+</body></html>

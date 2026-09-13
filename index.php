@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/paytr.php';
+require_once __DIR__ . '/includes/legal-pages.php';
+require_once __DIR__ . '/includes/feature-pages.php';
+require_once __DIR__ . '/includes/solution-pages.php';
+require_once __DIR__ . '/includes/about-page.php';
+require_once __DIR__ . '/includes/contact-page.php';
 
 function path_name(): string
 {
@@ -70,6 +75,16 @@ function user_owns_order(array $order): bool
 
 $path = path_name();
 $segments = $path === '' ? [] : explode('/', $path);
+
+if ($path === 'admin/blog' || str_starts_with($path, 'admin/blog/')) {
+    require __DIR__ . '/includes/blog-bridge.php';
+    exit;
+}
+if ($path === 'blog' || str_starts_with($path, 'blog/')) {
+    require __DIR__ . '/includes/blog-page.php';
+    exit;
+}
+
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -145,13 +160,19 @@ try {
                 redirect('sepet');
             }
             $user = current_user();
+            $phone = trim((string) ($_POST['phone'] ?? ''));
+            $phoneDigits = preg_replace('/\D+/', '', $phone) ?? '';
+            if (strlen($phoneDigits) < 10 || strlen($phoneDigits) > 15) {
+                flash('error', 'Lütfen geçerli bir telefon numarası yazın.');
+                redirect('odeme');
+            }
             $total = array_sum(array_map(static fn (array $item): int => (int) $item['price_kurus'], $items));
             $number = 'DJ-' . date('ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
             $pdo = db();
             $pdo->beginTransaction();
             try {
                 $insert = $pdo->prepare('INSERT INTO orders (order_number, user_id, total_kurus, customer_name, customer_email, customer_phone, customer_note) VALUES (?, ?, ?, ?, ?, ?, ?)');
-                $insert->execute([$number, (int) $user['id'], $total, $user['name'], $user['email'], trim((string) ($_POST['phone'] ?? '')), trim((string) ($_POST['note'] ?? ''))]);
+                $insert->execute([$number, (int) $user['id'], $total, $user['name'], $user['email'], $phone, trim((string) ($_POST['note'] ?? ''))]);
                 $orderId = (int) $pdo->lastInsertId();
                 $itemInsert = $pdo->prepare('INSERT INTO order_items (order_id, product_id, product_name, price_kurus, quantity) VALUES (?, ?, ?, ?, 1)');
                 foreach ($items as $item) {
@@ -159,6 +180,19 @@ try {
                 }
                 $pdo->commit();
                 $_SESSION['cart'] = [];
+                $savedOrder = [
+                    'order_number' => $number,
+                    'customer_name' => $user['name'],
+                    'customer_email' => $user['email'],
+                    'customer_phone' => $phone,
+                    'customer_note' => trim((string) ($_POST['note'] ?? '')),
+                    'total_kurus' => $total,
+                ];
+                $notificationSent = notify_order_created($savedOrder, $items);
+                flash('success', 'Siparişiniz alındı (' . $number . '). Telefon numaranız kaydedildi; ödeme ve kurulum için WhatsApp hattımızdan size dönüş yapacağız.');
+                if (!$notificationSent) {
+                    flash('warning', 'Sipariş kaydedildi ancak e-posta sunucusu bildirimi teslim edemedi.');
+                }
                 redirect('odeme?order=' . urlencode($number));
             } catch (Throwable $exception) {
                 $pdo->rollBack();
@@ -206,6 +240,7 @@ try {
             }
             redirect('admin/siteler');
         }
+
     }
 
     if ($path === 'cikis') {
@@ -216,12 +251,92 @@ try {
 
     if ($path === '' || $path === 'index.php') {
         $products = db()->query('SELECT * FROM products WHERE is_active = 1 ORDER BY is_featured DESC, id ASC')->fetchAll();
-        begin_page('Dijirota | Profesyonel Kurumsal Sayfalar', 'İşletmenizi dijitalde profesyonel gösteren, yönetim panelli kurumsal sayfalar. 15.000 TL KDV dahil; domain ve hosting dahil.', false, ['@context' => 'https://schema.org', '@type' => 'Organization', 'name' => 'Dijirota', 'url' => APP_URL]);
+        $latestBlogPosts = blog_public_posts(3);
+        $faqItems = [
+            ['question' => 'DİJİROTA paketine neler dahil?', 'answer' => 'Her pakete domain, hosting, kurulum ve işletmenizin içeriklerini yönetebileceğiniz yönetim paneli dahildir.'],
+            ['question' => 'Kurumsal sayfam ne kadar sürede hazırlanır?', 'answer' => 'Sipariş ve gerekli işletme bilgileriniz alındıktan sonra kurulum sürecini DİJİROTA yöneticisi başlatır. Süreci müşteri panelinizden takip edebilirsiniz.'],
+            ['question' => 'Domain ve hosting dahil mi?', 'answer' => 'Evet. 15.000 TL KDV dahil paket fiyatına domain ve hosting dahildir. Domain tercihinizi sipariş notunuzda belirtebilirsiniz.'],
+            ['question' => 'Yönetim panelini nasıl kullanacağım?', 'answer' => 'Kurulum tamamlandığında yönetim paneli adresiniz müşteri panelinize eklenir. Giriş bilgileri ve temel kullanım desteği tarafınıza iletilir.'],
+            ['question' => 'Birden fazla kurumsal sayfa satın alabilir miyim?', 'answer' => 'Evet. İhtiyacınıza göre birden fazla sektörel paket seçebilir ve her birini ayrı kurumsal sayfa olarak takip edebilirsiniz.'],
+            ['question' => 'Ödeme ve kurulum süreci nasıl ilerliyor?', 'answer' => 'Önce kataloğumuzdan sayfanızı seçip sepetinize ekleyin. Hesabınızı oluşturup ödeme adımını tamamladıktan sonra kurulum süreci başlar.'],
+        ];
+        $faqItems = array_merge($faqItems, [
+            ['question' => '15.000 TL paket fiyatına KDV dahil mi?', 'answer' => 'Evet. DİJİROTA kurumsal sayfa paketinin fiyatı 15.000 TL’dir ve KDV dahildir. Domain, hosting ve temel kurulum için ayrıca ücret alınmaz.'],
+            ['question' => 'Domain adımı nasıl ilerliyor?', 'answer' => 'Sipariş sırasında tercih ettiğiniz domain adını not olarak iletebilirsiniz. Uygunluk ve kayıt süreci kontrol edildikten sonra domain kurulumunuz başlatılır.'],
+            ['question' => 'Mevcut domainimi kullanabilir miyim?', 'answer' => 'Evet. Mevcut domaininizi kullanmak istiyorsanız sipariş notunda belirtmeniz yeterlidir. Gerekli DNS yönlendirmeleri ve kurulum adımları tarafınıza bildirilir.'],
+            ['question' => 'Yönetim panelinden neleri değiştirebilirim?', 'answer' => 'Panelinizin kapsamına göre site metinleri, iletişim bilgileri, görseller ve temel içerik alanlarını güncelleyebilirsiniz. Kurulum sonunda size özel kullanım bilgileri paylaşılır.'],
+            ['question' => 'Mobil cihazlarda ve tabletlerde çalışır mı?', 'answer' => 'Evet. DİJİROTA kurumsal sayfaları responsive tasarıma sahiptir; telefon, tablet ve bilgisayarlarda farklı ekranlara uyum sağlar.'],
+            ['question' => 'Satın almadan önce demoyu inceleyebilir miyim?', 'answer' => 'Evet. Katalogdaki ürün detay sayfalarından ilgili sektörün tanıtımını ve varsa canlı demo bağlantısını inceleyebilirsiniz.'],
+            ['question' => 'Ödeme sırasında kart bilgilerim DİJİROTA’ya ulaşır mı?', 'answer' => 'Kart ödeme formu PayTR altyapısı üzerinden açılır. Kart bilgileriniz DİJİROTA tarafından görülmez veya veritabanımızda saklanmaz.'],
+            ['question' => 'Siparişimi ve kurulum durumumu nereden takip ederim?', 'answer' => 'Hesabınıza giriş yaptıktan sonra müşteri panelinizden siparişlerinizi, kurulum durumunuzu, domain bilginizi ve yönetim paneli bağlantınızı takip edebilirsiniz.'],
+            ['question' => 'Site içeriklerimi DİJİROTA mı hazırlıyor?', 'answer' => 'Paket temel kurulum ve hazır sektör tasarımını kapsar. İşletmenize özel metin, logo ve görselleri sipariş notunda paylaşabilir; kurulum kapsamını iletişim sırasında netleştirebilirsiniz.'],
+            ['question' => 'Kurulum sonrasında destek alabilir miyim?', 'answer' => 'Evet. Kurulum ve yönetim paneliyle ilgili sorularınız için info@dijirota.com adresinden veya WhatsApp iletişim hattımızdan bize ulaşabilirsiniz.'],
+            ['question' => 'Ekstra tasarım veya özel geliştirme yapılabilir mi?', 'answer' => 'Temel paket kapsamı dışındaki özel tasarım ve geliştirme talepleri ayrıca değerlendirilir. İhtiyacınızı iletişim kanallarımızdan paylaşabilirsiniz.'],
+            ['question' => 'Siparişten sonra cayma veya iade süreci nasıl işliyor?', 'answer' => 'Dijital hizmet, domain ve kurulum süreçleri için cayma ve iade koşulları sipariş sırasında sunulan yasal metinlerde açıklanır. Siparişinizle ilgili özel bir talebiniz varsa bize ulaşabilirsiniz.'],
+            ['question' => 'DİJİROTA hangi sektörlere özel sayfa sunuyor?', 'answer' => 'Ajans, avukat, diyetisyen, diş, güzellik, kuaför, kurumsal, lojistik, psikolog, sigorta, teknik servis, temizlik, veteriner, ilaçlama ve inşaat sektörlerine özel paketler sunuyoruz.'],
+        ]);
+        $faqStructured = array_map(static fn (array $item): array => ['@type' => 'Question', 'name' => $item['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $item['answer']]], $faqItems);
+        begin_page('Dijirota | Profesyonel Kurumsal Sayfalar', 'İşletmenizi dijitalde profesyonel gösteren, yönetim panelli kurumsal sayfalar. 15.000 TL KDV dahil; domain ve hosting dahil.', false, ['@context' => 'https://schema.org', '@graph' => [['@type' => 'Organization', 'name' => 'Dijirota', 'url' => APP_URL], ['@type' => 'FAQPage', 'mainEntity' => $faqStructured]]]);
         ?>
         <section class="hero-section"><div class="container hero-grid"><div><div class="eyebrow light">DİJİROTA KURUMSAL SAYFALAR</div><h1>İşletmeniz için profesyonel bir dijital başlangıç.</h1><p class="hero-copy">Sektörünüze özel tasarlanmış, yönetim panelli kurumsal sayfanızı seçin. Domain, hosting ve kurulum dahil; tek pakette hazır.</p><div class="hero-actions"><a class="button button-primary" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Kurumsal sayfaları keşfet <span>↗</span></a><a class="button button-ghost" href="#nasil-calisir">Nasıl çalışır?</a></div><div class="hero-proof"><span>15 sektör</span><span>Yönetim paneli</span><span>15.000 TL KDV dahil</span></div></div><div class="hero-showcase"><div class="floating-label">Dijital görünümünüzü güçlendirin</div><div class="showcase-back-card"><span>15 SEKTÖR</span><strong>15 sektöre<br>hazır çözüm.</strong><small>Panel · Domain · Hosting</small></div><div class="showcase-window"><div class="window-bar"><i></i><i></i><i></i></div><div class="showcase-content"><span>DİJİROTA</span><strong>Markanız için<br>güçlü bir vitrin.</strong><div class="showcase-lines"><b></b><b></b><b></b></div></div></div><div class="showcase-orbit"></div></div></div></section>
         <section class="section section-white"><div class="container"><div class="section-heading"><div><div class="eyebrow">ÖNE ÇIKANLAR</div><h2>İşletmenize uygun kurumsal sayfayı bulun.</h2></div><a class="text-link" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Tümünü gör →</a></div><div class="product-grid featured-grid"><?php foreach (array_slice($products, 0, 6) as $product) { product_card($product); } ?></div></div></section>
-        <section class="section section-dark" id="nasil-calisir"><div class="container"><div class="section-heading"><div><div class="eyebrow light">SÜREÇ</div><h2>Fikrinizi yayına almanın kolay yolu.</h2></div><p class="section-intro">İhtiyacınız olan kurumsal sayfayı seçin, gerisini DİJİROTA sizin için tamamlasın.</p></div><div class="steps"><article class="step"><div class="step-header"><span>01</span><div class="step-icon">⌁</div></div><h3>Sayfanızı seçin</h3><p>15 farklı sektörel kurumsal sayfa arasından işletmenize en uygun tasarımı inceleyin.</p><a class="step-link" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Kataloğu incele <span>↗</span></a></article><article class="step"><div class="step-header"><span>02</span><div class="step-icon">＋</div></div><h3>Sipariş verin</h3><p>Sepetinizi oluşturun, hesabınızı açın ve güvenli ödeme adımını tamamlayın.</p><a class="step-link" href="<?= e(APP_URL) ?>/sepet">Sepete git <span>↗</span></a></article><article class="step"><div class="step-header"><span>03</span><div class="step-icon">✓</div></div><h3>Biz kuralım</h3><p>Domain, hosting ve kurulum süreçlerini DİJİROTA yöneticisi sizin için tamamlasın.</p><a class="step-link" href="<?= e(APP_URL) ?>/#iletisim">Kurulum detayları <span>↗</span></a></article></div></div></section>
+        <section class="section section-dark" id="nasil-calisir"><div class="container"><div class="section-heading"><div><div class="eyebrow light">SÜREÇ</div><h2>Fikrinizi yayına almanın kolay yolu.</h2></div><p class="section-intro">İhtiyacınız olan kurumsal sayfayı seçin, gerisini DİJİROTA sizin için tamamlasın.</p></div><div class="steps"><article class="step"><div class="step-header"><span>01</span><div class="step-icon">⌁</div></div><h3>Sayfanızı seçin</h3><p>15 farklı sektörel kurumsal sayfa arasından işletmenize en uygun tasarımı inceleyin.</p><a class="step-link" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Kataloğu incele <span>↗</span></a></article><article class="step"><div class="step-header"><span>02</span><div class="step-icon">＋</div></div><h3>Sipariş verin</h3><p>Sepetinizi oluşturun, hesabınızı açın ve güvenli ödeme adımını tamamlayın.</p><a class="step-link" href="<?= e(APP_URL) ?>/sepet">Sepete git <span>↗</span></a></article><article class="step"><div class="step-header"><span>03</span><div class="step-icon">✓</div></div><h3>Biz kuralım</h3><p>Domain, hosting ve kurulum süreçlerini DİJİROTA yöneticisi sizin için tamamlasın.</p><a class="step-link" href="<?= e(APP_URL) ?>/iletisim">Kurulum detayları <span>↗</span></a></article></div></div></section>
         <section class="section section-accent"><div class="container cta-box"><div><div class="eyebrow">HAZIR MISINIZ?</div><h2>Markanız için doğru kurumsal sayfayı bugün seçin.</h2></div><a class="button button-dark" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Sayfaları incele ↗</a></div></section>
+        <section class="section faq-section" id="sss"><div class="container faq-container"><div class="faq-heading"><div class="eyebrow">✦ &nbsp; SSS</div><h2>Sık sorulan sorular</h2><p>Kurumsal sayfa paketleri, ödeme ve kurulum süreci hakkında merak ettikleriniz.</p></div><div class="faq-list"><?php foreach ($faqItems as $item): ?><details class="faq-item"><summary><?= e($item['question']) ?><span class="faq-toggle" aria-hidden="true">+</span></summary><div class="faq-answer"><p><?= e($item['answer']) ?></p></div></details><?php endforeach; ?></div></div></section>
+        <?php if ($latestBlogPosts): ?><section class="section section-white"><div class="container"><div class="section-heading"><div><div class="eyebrow">DİJİROTA BLOG</div><h2>İşletmeniz için güncel dijital rehberler.</h2></div><a class="text-link" href="<?= e(APP_URL) ?>/blog">Tüm yazıları gör →</a></div><div class="blog-grid"><?php foreach ($latestBlogPosts as $post): ?><article class="blog-card"><div class="blog-card-meta"><span><?= e($post['category']) ?></span><time datetime="<?= e((string) ($post['published_at'] ?? '')) ?>"><?= e($post['published_at'] ? date('d.m.Y', strtotime((string) $post['published_at'])) : '') ?></time></div><h2><a href="<?= e(APP_URL) ?>/blog/<?= e($post['slug']) ?>"><?= e($post['h1'] ?: $post['title']) ?></a></h2><p><?= e($post['excerpt']) ?></p><a class="text-link" href="<?= e(APP_URL) ?>/blog/<?= e($post['slug']) ?>">Yazıyı oku →</a></article><?php endforeach; ?></div></div></section><?php endif; ?>
+        <?php end_page();
+        exit;
+    }
+
+    if ($path === 'iletisim') {
+        $contactPage = dijirota_contact_page();
+        begin_page($contactPage['title'] . ' | Dijirota', $contactPage['description']);
+        ?>
+        <section class="page-hero compact"><div class="container"><div class="eyebrow light">DİJİROTA İLETİŞİM</div><h1><?= e($contactPage['title']) ?></h1><p><?= e($contactPage['description']) ?></p></div></section>
+        <section class="section section-white"><div class="container contact-layout"><div class="contact-intro"><p class="feature-lead"><?= e($contactPage['intro']) ?></p><div class="contact-cards"><a class="contact-card" href="mailto:info@dijirota.com"><span class="contact-card-icon">@</span><span><strong>E-posta</strong><small>info@dijirota.com</small></span><b>↗</b></a><a class="contact-card" href="tel:+905446201621"><span class="contact-card-icon">⌕</span><span><strong>Telefon</strong><small>+90 544 620 16 21</small></span><b>↗</b></a><a class="contact-card contact-card-whatsapp" href="<?= e(whatsapp_url()) ?>" target="_blank" rel="noopener"><span class="contact-card-icon">◌</span><span><strong>WhatsApp</strong><small>Hızlıca mesaj gönderin</small></span><b>↗</b></a></div></div><aside class="contact-aside"><div class="eyebrow">NASIL YARDIMCI OLABİLİRİZ?</div><h2>Size uygun paketi birlikte bulalım.</h2><p>Hangi sektörde faaliyet gösterdiğinizi ve ihtiyacınızı yazın. En uygun kurumsal sayfa için size yardımcı olalım.</p><a class="button button-primary full" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Paketleri incele <span>↗</span></a></aside></div></section>
+        <?php end_page();
+        exit;
+    }
+
+    if ($path === 'hakkimizda') {
+        $aboutPage = dijirota_about_page();
+        begin_page($aboutPage['title'] . ' | Dijirota', $aboutPage['description']);
+        ?>
+        <section class="page-hero compact"><div class="container"><div class="eyebrow light">DİJİROTA HAKKINDA</div><h1><?= e($aboutPage['title']) ?></h1><p><?= e($aboutPage['description']) ?></p></div></section>
+        <section class="section section-white"><div class="container feature-layout"><article class="feature-content"><p class="feature-lead"><?= e($aboutPage['intro']) ?></p><div class="feature-points"><?php foreach ($aboutPage['points'] as $index => $point): ?><div class="feature-point"><span><?= e(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span><p><?= e($point) ?></p></div><?php endforeach; ?></div></article><aside class="feature-aside"><div class="eyebrow">BİZE ULAŞIN</div><h2>Dijital başlangıcınızı birlikte hazırlayalım.</h2><p>İşletmeniz için uygun sektör sayfasını seçin veya sorularınız için bize ulaşın.</p><a class="button button-primary full" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Kurumsal sayfaları incele <span>↗</span></a><a class="text-link about-contact-link" href="<?= e(APP_URL) ?>/iletisim">İletişim bilgileri <span>→</span></a></aside></div></section>
+        <?php end_page();
+        exit;
+    }
+
+    $solutionPages = dijirota_solution_pages();
+    if (isset($solutionPages[$path])) {
+        $solutionPage = $solutionPages[$path];
+        begin_page($solutionPage['title'] . ' | Dijirota', $solutionPage['description']);
+        ?>
+        <section class="page-hero compact"><div class="container"><div class="eyebrow light">DİJİROTA ÇÖZÜMLERİ</div><h1><?= e($solutionPage['title']) ?></h1><p><?= e($solutionPage['description']) ?></p></div></section>
+        <section class="section section-white"><div class="container feature-layout"><article class="feature-content"><p class="feature-lead"><?= e($solutionPage['intro']) ?></p><div class="feature-points"><?php foreach ($solutionPage['points'] as $index => $point): ?><div class="feature-point"><span><?= e(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span><p><?= e($point) ?></p></div><?php endforeach; ?></div></article><aside class="feature-aside"><div class="eyebrow">BAŞLAYIN</div><h2>İşletmeniz için doğru seçimi yapın.</h2><p>15 sektöre özel kurumsal sayfaları inceleyin ve size uygun paketi seçin.</p><a class="button button-primary full" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Kataloğu incele <span>↗</span></a></aside></div></section>
+        <?php end_page();
+        exit;
+    }
+
+    $featurePages = dijirota_feature_pages();
+    if (isset($featurePages[$path])) {
+        $featurePage = $featurePages[$path];
+        begin_page($featurePage['title'] . ' | Dijirota', $featurePage['description']);
+        ?>
+        <section class="page-hero compact"><div class="container"><div class="eyebrow light">DİJİROTA ÖZELLİĞİ</div><h1><?= e($featurePage['title']) ?></h1><p><?= e($featurePage['description']) ?></p></div></section>
+        <section class="section section-white"><div class="container feature-layout"><article class="feature-content"><p class="feature-lead"><?= e($featurePage['intro']) ?></p><div class="feature-points"><?php foreach ($featurePage['points'] as $index => $point): ?><div class="feature-point"><span><?= e(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span><p><?= e($point) ?></p></div><?php endforeach; ?></div></article><aside class="feature-aside"><div class="eyebrow">HAZIR MISINIZ?</div><h2>İşletmeniz için doğru paketi seçin.</h2><p>15 sektöre özel kurumsal sayfaları inceleyin; domain, hosting ve kurulum dahil paketinizi seçin.</p><a class="button button-primary full" href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Kurumsal sayfaları incele <span>↗</span></a></aside></div></section>
+        <?php end_page();
+        exit;
+    }
+
+    $legalPages = dijirota_legal_pages();
+    if (isset($legalPages[$path])) {
+        $legalPage = $legalPages[$path];
+        begin_page($legalPage['title'] . ' | Dijirota', $legalPage['description'], false);
+        ?>
+        <section class="page-hero compact"><div class="container"><div class="eyebrow light">YASAL BİLGİLENDİRME</div><h1><?= e($legalPage['title']) ?></h1><p><?= e($legalPage['description']) ?></p></div></section>
+        <section class="section section-white"><div class="container legal-layout"><article class="legal-content"><div class="legal-updated">Son güncelleme: 30 Ağustos 2026</div><p class="legal-lead"><?= e($legalPage['intro']) ?></p><?php foreach ($legalPage['sections'] as $section): ?><section class="legal-section"><h2><?= e($section['title']) ?></h2><?php foreach ($section['paragraphs'] as $paragraph): ?><p><?= e($paragraph) ?></p><?php endforeach; ?><?php if (!empty($section['items'])): ?><ul><?php foreach ($section['items'] as $item): ?><li><?= e($item) ?></li><?php endforeach; ?></ul><?php endif; ?></section><?php endforeach; ?></article><aside class="legal-aside"><div class="eyebrow">DİJİROTA</div><h3>Yasal metinler</h3><a href="<?= e(APP_URL) ?>/gizlilik-politikasi">Gizlilik Politikası</a><a href="<?= e(APP_URL) ?>/kullanim-kosullari">Kullanım Koşulları</a><a href="<?= e(APP_URL) ?>/mesafeli-satis-sozlesmesi">Mesafeli Satış Sözleşmesi</a><a href="<?= e(APP_URL) ?>/on-bilgilendirme-formu">Ön Bilgilendirme Formu</a><hr><p>Sorularınız için bize ulaşın.</p><a class="legal-contact" href="mailto:info@dijirota.com">info@dijirota.com</a><a class="legal-contact" href="tel:+905446201621">+90 544 620 16 21</a></aside></div></section>
         <?php end_page();
         exit;
     }
@@ -363,7 +478,7 @@ try {
         $pendingCount = (int) db()->query("SELECT COUNT(*) FROM customer_sites WHERE status <> 'active'")->fetchColumn();
         begin_page('Yönetim Paneli | DİJİROTA', 'Dijirota merkezi yönetim paneli.', true);
         ?>
-        <section class="page-hero compact"><div class="container"><div class="eyebrow light">MERKEZİ YÖNETİM</div><h1>DİJİROTA kontrol merkezi.</h1><p>Ürünleri, müşterileri, siparişleri ve kurulumları tek yerden yönetin.</p></div></section><section class="section section-white"><div class="container dashboard"><aside class="dashboard-nav"><a class="active" href="<?= e(APP_URL) ?>/admin">Genel bakış</a><a href="<?= e(APP_URL) ?>/admin/urunler">Ürünler</a><a href="<?= e(APP_URL) ?>/admin/siparisler">Siparişler</a><a href="<?= e(APP_URL) ?>/admin/siteler">Kurulumlar</a><a href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Mağazayı görüntüle</a></aside><div class="dashboard-content"><div class="dashboard-stats"><div><span>Toplam sipariş</span><strong><?= $orderCount ?></strong></div><div><span>Müşteri hesabı</span><strong><?= $userCount ?></strong></div><div><span>Bekleyen kurulum</span><strong><?= $pendingCount ?></strong></div></div><div class="admin-quick"><a href="<?= e(APP_URL) ?>/admin/urunler"><span>01</span><h3>Ürünleri yönet</h3><p>15 kurumsal sayfanın katalog bilgilerini kontrol edin.</p></a><a href="<?= e(APP_URL) ?>/admin/siparisler"><span>02</span><h3>Siparişleri yönet</h3><p>Ödeme durumlarını ve sipariş akışını takip edin.</p></a><a href="<?= e(APP_URL) ?>/admin/siteler"><span>03</span><h3>Kurulumları yönet</h3><p>Domain, hosting ve yönetim paneli bilgilerini tanımlayın.</p></a></div></div></div></section>
+        <section class="page-hero compact"><div class="container"><div class="eyebrow light">MERKEZİ YÖNETİM</div><h1>DİJİROTA kontrol merkezi.</h1><p>Ürünleri, müşterileri, siparişleri, kurulumları ve blog içeriklerini tek yerden yönetin.</p></div></section><section class="section section-white"><div class="container dashboard"><aside class="dashboard-nav"><a class="active" href="<?= e(APP_URL) ?>/admin">Genel bakış</a><a href="<?= e(APP_URL) ?>/admin/urunler">Ürünler</a><a href="<?= e(APP_URL) ?>/admin/siparisler">Siparişler</a><a href="<?= e(APP_URL) ?>/admin/siteler">Kurulumlar</a><a href="<?= e(APP_URL) ?>/admin/blog">Blog</a><a href="<?= e(APP_URL) ?>/kurumsal-sayfalar">Mağazayı görüntüle</a></aside><div class="dashboard-content"><div class="dashboard-stats"><div><span>Toplam sipariş</span><strong><?= $orderCount ?></strong></div><div><span>Müşteri hesabı</span><strong><?= $userCount ?></strong></div><div><span>Bekleyen kurulum</span><strong><?= $pendingCount ?></strong></div></div><div class="admin-quick"><a href="<?= e(APP_URL) ?>/admin/urunler"><span>01</span><h3>Ürünleri yönet</h3><p>15 kurumsal sayfanın katalog bilgilerini kontrol edin.</p></a><a href="<?= e(APP_URL) ?>/admin/siparisler"><span>02</span><h3>Siparişleri yönet</h3><p>Ödeme durumlarını ve sipariş akışını takip edin.</p></a><a href="<?= e(APP_URL) ?>/admin/siteler"><span>03</span><h3>Kurulumları yönet</h3><p>Domain, hosting ve yönetim paneli bilgilerini tanımlayın.</p></a><a href="<?= e(APP_URL) ?>/admin/blog"><span>04</span><h3>Blog içerikleri</h3><p>AI ile araştırılmış taslaklar üretin, düzenleyin ve yayınlayın.</p></a></div></div></div></section>
         <?php end_page();
         exit;
     }

@@ -39,6 +39,41 @@ function whatsapp_url(string $message = 'Merhaba, Dijirota kurumsal sayfaları h
     return 'https://wa.me/905446201621?text=' . rawurlencode($message);
 }
 
+function notify_order_created(array $order, array $items): bool
+{
+    if (!filter_var(ORDER_NOTIFICATION_EMAIL, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+
+    $itemLines = array_map(
+        static fn (array $item): string => '- ' . ($item['product_name'] ?? $item['name'] ?? 'Ürün') . ' (' . money((int) $item['price_kurus']) . ')',
+        $items
+    );
+    $subject = 'Yeni DİJİROTA siparişi: ' . $order['order_number'];
+    $body = implode("\n", [
+        'Yeni sipariş oluşturuldu.',
+        '',
+        'Sipariş: ' . $order['order_number'],
+        'Müşteri: ' . $order['customer_name'],
+        'E-posta: ' . $order['customer_email'],
+        'Telefon: ' . $order['customer_phone'],
+        'Toplam: ' . money((int) $order['total_kurus']),
+        '',
+        'Ürünler:',
+        ...$itemLines,
+        '',
+        'Not: ' . ($order['customer_note'] ?: 'Belirtilmedi.'),
+    ]);
+    $headers = implode("\r\n", [
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: DİJİROTA <no-reply@dijirota.com>',
+        'Reply-To: ' . $order['customer_email'],
+    ]);
+
+    return mail(ORDER_NOTIFICATION_EMAIL, $subject, $body, $headers);
+}
+
 function preview_title(string $name): string
 {
     $shortName = preg_replace('/\s+Kurumsal Sayfası$/u', '', $name);

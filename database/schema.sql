@@ -103,6 +103,8 @@ CREATE TABLE IF NOT EXISTS support_tickets (
     CONSTRAINT fk_tickets_site FOREIGN KEY (customer_site_id) REFERENCES customer_sites(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
+
+
 INSERT INTO products (slug, name, category, description, price_kurus, demo_url, theme, features_json, is_featured)
 VALUES
 ('ajans', 'Ajans Kurumsal Sayfası', 'Ajans', 'Yaratıcı ajanslar için güçlü referans, hizmet ve proje sunumuna sahip modern kurumsal sayfa.', 1500000, 'http://localhost:8080', 'Modern yaratıcı ajans teması', '["Hizmet yönetimi", "Proje ve referans alanı", "Blog", "İletişim formu"]', 1),

@@ -43,5 +43,14 @@ PayTR bildirim URL'si:
 - /admin: DİJİROTA merkezi yönetim paneli
 - /admin/siparisler: sipariş ve ödeme durumları
 - /admin/siteler: domain, hosting ve kurulum takibi
+- /blog: yayınlanmış blog rehberleri
+- /blog/{slug}: blog yazısı, kaynaklar ve görünür SSS
+- /admin/blog: AI taslak üretimi, düzenleme, revizyon ve yayın yönetimi
 
-Mevcut 15 kurumsal sayfa ayrı uygulamalar olarak korunur. DİJİROTA katalog kayıtları ve sipariş verileri kendi MariaDB veritabanında tutulur.
+## Blog Atölyesi
+
+Sadıkkartal.com blog motoru Dijirota'ya uyarlandı. Mevcut yönetici hesabıyla `/admin` üzerinden giriş yaptıktan sonra `/admin/blog` ekranını açın. NVIDIA yazı/kapak üretimi, Markdown düzenleme, önizleme, açık sürüm onayı ve yayından kaldırma desteklenir.
+
+PHP mağaza ve MariaDB yanında özel bir Node.js 22 blog servisi çalışır. Hepsi yukarıdaki tek Docker Compose komutuyla başlar; kullanıcıya açık adres yine 8100 portudur. Yeni blog boş başlar; eski yazılar veritabanında korunur ama yeni blogda gösterilmez.
+
+Kurulum, durdurma, ayarlar, onay akışı ve yedekleme: [Blog kullanım rehberi](docs/BLOG.md).

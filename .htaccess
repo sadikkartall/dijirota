@@ -1,6 +1,9 @@
 RewriteEngine On
 
 Options -Indexes
+RewriteRule ^(?:blog-engine|includes|config|database|paytr/backup)(?:/|$) - [F,L,NC]
+RewriteRule (^|/)\. - [F,L]
+
 
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d

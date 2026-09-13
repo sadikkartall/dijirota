@@ -1,2 +1,6 @@
 .env
 *.log
+
+blog-engine/node_modules/
+blog-engine/.blog-data/
+blog-engine/dist/
