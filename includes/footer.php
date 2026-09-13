@@ -8,7 +8,7 @@
                 <strong>DİJİROTA</strong>
                 <span>Türkiye</span>
                 <a href="tel:+905446201621">+90 544 620 16 21</a>
-                <a href="mailto:info@dijirota.com">info@dijirota.com</a>
+                <a href="mailto:<?= e(CONTACT_EMAIL) ?>"><?= e(CONTACT_EMAIL) ?></a>
             </div>
         </div>
 
@@ -19,7 +19,7 @@
             <a href="<?= e(APP_URL) ?>/hazir-paketler">Hazır paketler</a>
             <a href="<?= e(APP_URL) ?>/blog">Blog rehberleri</a>
             <a href="<?= e(APP_URL) ?>/#nasil-calisir">Nasıl çalışır?</a>
-            <a href="<?= e(APP_URL) ?>/sepet">Sepet</a>
+            <?php if (current_user()): ?><a href="<?= e(APP_URL) ?>/sepet">Sepet</a><?php endif; ?>
         </nav>
 
         <nav class="footer-column" aria-label="Özellikler">

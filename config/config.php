@@ -25,7 +25,9 @@ function env_value(string $key, string $default = ''): string
 
 define('APP_ENV', env_value('APP_ENV', 'local'));
 define('APP_URL', rtrim(env_value('APP_URL', 'http://localhost:8100'), '/'));
-define('ORDER_NOTIFICATION_EMAIL', env_value('ORDER_NOTIFICATION_EMAIL', 'sdkkrtll@gmail.com'));
+define('CONTACT_EMAIL', env_value('CONTACT_EMAIL', 'dijirotaagency@gmail.com'));
+define('ORDER_NOTIFICATION_EMAIL', env_value('ORDER_NOTIFICATION_EMAIL', CONTACT_EMAIL));
+define('PASSWORD_RESET_FROM_EMAIL', env_value('PASSWORD_RESET_FROM_EMAIL', 'no-reply@dijirota.com'));
 define('DB_HOST', env_value('DB_HOST', '127.0.0.1'));
 define('DB_PORT', env_value('DB_PORT', '3306'));
 define('DB_NAME', env_value('DB_NAME', 'dijirota'));

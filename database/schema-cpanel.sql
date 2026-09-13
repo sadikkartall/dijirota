@@ -103,6 +103,20 @@ CREATE TABLE IF NOT EXISTS support_tickets (
     CONSTRAINT fk_tickets_site FOREIGN KEY (customer_site_id) REFERENCES customer_sites(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS password_resets (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    requested_ip VARCHAR(45) NULL,
+    expires_at DATETIME NOT NULL,
+    used_at DATETIME NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_password_resets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_password_resets_user_created (user_id, created_at),
+    INDEX idx_password_resets_ip_created (requested_ip, created_at),
+    INDEX idx_password_resets_expires (expires_at)
+) ENGINE=InnoDB;
+
 
 
 INSERT INTO products (slug, name, category, description, price_kurus, demo_url, theme, features_json, is_featured)

@@ -34,8 +34,8 @@ $flash_items = flashes();
             <a href="<?= e(APP_URL) ?>/blog">Blog</a>
             <a href="<?= e(APP_URL) ?>/#nasil-calisir">Nasıl Çalışır?</a>
             <a href="<?= e(APP_URL) ?>/iletisim">İletişim</a>
-            <a class="cart-link" href="<?= e(APP_URL) ?>/sepet">Sepet <span><?= cart_count() ?></span></a>
             <?php if ($user): ?>
+                <a class="cart-link" href="<?= e(APP_URL) ?>/sepet">Sepet <span><?= cart_count() ?></span></a>
                 <a class="nav-account" href="<?= e(APP_URL) ?>/panel">Hesabım</a>
                 <?php if (in_array($user['role'], ['admin', 'support'], true)): ?><a href="<?= e(APP_URL) ?>/admin">Yönetim</a><?php endif; ?>
                 <a href="<?= e(APP_URL) ?>/cikis">Çıkış</a>
