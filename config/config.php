@@ -1,6 +1,22 @@
 <?php
 declare(strict_types=1);
 
+$env_file = dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env';
+if (is_file($env_file) && is_readable($env_file)) {
+    foreach (file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $env_line) {
+        $env_line = trim($env_line);
+        if ($env_line === '' || str_starts_with($env_line, '#') || !str_contains($env_line, '=')) {
+            continue;
+        }
+        [$env_key, $env_value] = explode('=', $env_line, 2);
+        $env_key = trim($env_key);
+        $env_value = trim($env_value);
+        if ($env_key !== '' && getenv($env_key) === false) {
+            putenv($env_key . '=' . trim($env_value, "\"'"));
+        }
+    }
+}
+
 function env_value(string $key, string $default = ''): string
 {
     $value = getenv($key);
